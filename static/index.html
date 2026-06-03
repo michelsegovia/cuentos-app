@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CuentoMágico ✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7C3AED;
+      --purple-light: #EDE9FE;
+      --yellow: #F59E0B;
+      --yellow-light: #FEF3C7;
+      --pink: #EC4899;
+      --pink-light: #FCE7F3;
+      --green: #10B981;
+      --green-light: #D1FAE5;
+      --blue: #3B82F6;
+      --blue-light: #DBEAFE;
+      --bg: #FDF8FF;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --text-soft: #6B7280;
+      --radius: 20px;
+      --shadow: 0 4px 24px rgba(124,58,237,0.10);
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(124,58,237,0.3);
+    }
+    header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      color: white;
+      letter-spacing: 1px;
+    }
+    header p {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.95rem;
+      margin-top: 0.2rem;
+      font-weight: 600;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 2rem 1.2rem 4rem;
+    }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--purple);
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: 3px solid #E5D9FE;
+      border-radius: 14px;
+      outline: none;
+      color: var(--text);
+      background: #FAFAFE;
+      transition: border-color 0.2s;
+    }
+    .name-input:focus { border-color: var(--purple); background: white; }
+    .name-input::placeholder { color: #C4B5FD; font-weight: 600; }
+
+    .section-divider {
+      border: none;
+      border-top: 2px dashed #E5D9FE;
+      margin: 1.6rem 0;
+    }
+
+    /* ── THEME GRID ── */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.7rem;
+    }
+
+    .theme-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.8rem 0.5rem;
+      border: 3px solid #E5D9FE;
+      border-radius: 14px;
+      background: #FAFAFE;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      transition: all 0.18s;
+      user-select: none;
+    }
+    .theme-btn:hover {
+      border-color: var(--purple);
+      background: var(--purple-light);
+      color: var(--purple);
+      transform: translateY(-2px);
+    }
+    .theme-btn.selected {
+      border-color: var(--purple);
+      background: var(--purple-light);
+      color: var(--purple);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124,58,237,0.2);
+    }
+    .theme-emoji { font-size: 1.8rem; line-height: 1; }
+
+    /* ── GENERATE BUTTON ── */
+    .generate-btn {
+      display: block;
+      width: 100%;
+      margin-top: 1.8rem;
+      padding: 1rem 1.5rem;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 0.5px;
+      color: white;
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(124,58,237,0.35);
+    }
+    .generate-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(124,58,237,0.45);
+    }
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── STATUS BANNER ── */
+    .status-banner {
+      background: linear-gradient(135deg, #7C3AED22, #EC489922);
+      border: 2px solid #E5D9FE;
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .status-banner.visible { display: block; }
+    .status-text {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--purple);
+    }
+    .progress-dots {
+      display: inline-flex;
+      gap: 6px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .progress-dots span {
+      width: 8px; height: 8px;
+      background: var(--purple);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+      display: inline-block;
+    }
+    .progress-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .progress-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    /* ── STORY SECTION ── */
+    #story-section { display: none; }
+    #story-section.visible { display: block; }
+
+    .story-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      color: var(--purple);
+      text-align: center;
+      margin-bottom: 1.8rem;
+      line-height: 1.2;
+    }
+    .story-title span {
+      display: inline-block;
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── STORY PAGES ── */
+    .page-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: pageReveal 0.6s ease forwards;
+    }
+    @keyframes pageReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-number {
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+      color: white;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.9rem;
+      padding: 0.4rem 1rem;
+      display: inline-block;
+    }
+
+    .page-image-wrapper {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .page-image-wrapper.loading::after {
+      content: '🎨';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+    .page-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .page-text {
+      padding: 1.5rem 1.8rem;
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      line-height: 1.8;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── ERROR ── */
+    .error-card {
+      background: #FEF2F2;
+      border: 2px solid #FECACA;
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      color: #DC2626;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .error-card.visible { display: block; }
+
+    /* ── NEW STORY BUTTON ── */
+    .new-story-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: var(--purple);
+      background: var(--purple-light);
+      border: 3px solid var(--purple);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+    .new-story-btn:hover {
+      background: var(--purple);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* ── STARS DECORATION ── */
+    .stars {
+      text-align: center;
+      font-size: 1.4rem;
+      letter-spacing: 0.5rem;
+      margin: 1rem 0;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 480px) {
+      main { padding: 1.2rem 0.8rem 3rem; }
+      .form-card { padding: 1.5rem 1.2rem; }
+      .theme-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .page-text { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>✨ CuentoMágico</h1>
+  <p>Cuentos únicos para pequeños grandes soñadores</p>
+</header>
+
+<main>
+  <!-- FORM -->
+  <div class="form-card" id="form-card">
+    <label class="field-label" for="protagonist-input">
+      👤 ¿Cómo se llama el protagonista?
+    </label>
+    <input
+      id="protagonist-input"
+      class="name-input"
+      type="text"
+      placeholder="Escribe el nombre aquí..."
+      maxlength="40"
+      autocomplete="off"
+    >
+
+    <hr class="section-divider">
+
+    <label class="field-label">🗺️ Elige la temática del cuento</label>
+    <div class="theme-grid" id="theme-grid"></div>
+
+    <button class="generate-btn" id="generate-btn" onclick="startGeneration()">
+      ✨ ¡Crear el cuento!
+    </button>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-banner" id="status-banner">
+    <div class="status-text" id="status-text">
+      Preparando la magia
+      <span class="progress-dots"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-card" id="error-card"></div>
+
+  <!-- STORY -->
+  <section id="story-section">
+    <div class="stars">⭐ 🌟 ✨ 🌟 ⭐</div>
+    <h2 class="story-title" id="story-title"></h2>
+    <div id="pages-container"></div>
+    <button class="new-story-btn" id="new-story-btn" style="display:none" onclick="resetForm()">
+      📖 Crear otro cuento
+    </button>
+  </section>
+</main>
+
+<script>
+  const THEMES = {
+    princesas:   { label: 'Princesas',      emoji: '👸' },
+    espacio:     { label: 'Espacio',         emoji: '🚀' },
+    bosque:      { label: 'Bosque Mágico',   emoji: '🌲' },
+    piratas:     { label: 'Piratas',         emoji: '⚓' },
+    dinosaurios: { label: 'Dinosaurios',     emoji: '🦕' },
+    oceano:      { label: 'Océano',          emoji: '🌊' },
+    superheroes: { label: 'Superhéroes',     emoji: '🦸' },
+    granja:      { label: 'Granja',          emoji: '🐄' },
+    dragones:    { label: 'Dragones',        emoji: '🐉' },
+    circo:       { label: 'Circo',           emoji: '🎪' },
+    hadas:       { label: 'Hadas',           emoji: '🧚' },
+    aventura:    { label: 'Gran Aventura',   emoji: '🗺️' },
+  };
+  let selectedTheme = null;
+
+  // Build theme grid
+  (function buildGrid() {
+    const grid = document.getElementById('theme-grid');
+    for (const [key, data] of Object.entries(THEMES)) {
+      const btn = document.createElement('button');
+      btn.className = 'theme-btn';
+      btn.dataset.theme = key;
+      btn.innerHTML = `<span class="theme-emoji">${data.emoji}</span><span>${data.label}</span>`;
+      btn.onclick = () => selectTheme(key);
+      grid.appendChild(btn);
+    }
+  })();
+
+  function selectTheme(key) {
+    selectedTheme = key;
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.theme === key);
+    });
+  }
+
+  function setStatus(msg) {
+    const banner = document.getElementById('status-banner');
+    document.getElementById('status-text').innerHTML =
+      msg + '<span class="progress-dots"><span></span><span></span><span></span></span>';
+    banner.classList.add('visible');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-card');
+    el.textContent = '❌ ' + msg;
+    el.classList.add('visible');
+    document.getElementById('status-banner').classList.remove('visible');
+    document.getElementById('generate-btn').disabled = false;
+    document.getElementById('generate-btn').textContent = '✨ ¡Crear el cuento!';
+  }
+
+  function addPage(page) {
+    const container = document.getElementById('pages-container');
+    const card = document.createElement('div');
+    card.className = 'page-card';
+    card.style.animationDelay = '0.1s';
+
+    const imgWrapper = document.createElement('div');
+    imgWrapper.className = 'page-image-wrapper loading';
+
+    const img = document.createElement('img');
+    img.className = 'page-image';
+    img.alt = `Ilustración página ${page.page_number}`;
+    img.onload = () => imgWrapper.classList.remove('loading');
+    img.src = page.image_url;
+
+    imgWrapper.appendChild(img);
+
+    card.innerHTML = `<div class="page-number">Página ${page.page_number}</div>`;
+    card.appendChild(imgWrapper);
+
+    const text = document.createElement('p');
+    text.className = 'page-text';
+    text.textContent = page.text;
+    card.appendChild(text);
+
+    container.appendChild(card);
+
+    // Scroll to new page
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+
+  async function startGeneration() {
+    const protagonist = document.getElementById('protagonist-input').value.trim();
+
+    if (!protagonist) {
+      document.getElementById('protagonist-input').focus();
+      document.getElementById('protagonist-input').style.borderColor = '#EC4899';
+      setTimeout(() => document.getElementById('protagonist-input').style.borderColor = '', 1500);
+      return;
+    }
+    if (!selectedTheme) {
+      const grid = document.getElementById('theme-grid');
+      grid.style.outline = '3px solid #EC4899';
+      grid.style.borderRadius = '10px';
+      setTimeout(() => { grid.style.outline = ''; grid.style.borderRadius = ''; }, 1500);
+      return;
+    }
+
+    // Reset state
+    document.getElementById('error-card').classList.remove('visible');
+    document.getElementById('pages-container').innerHTML = '';
+    document.getElementById('story-title').textContent = '';
+    document.getElementById('story-section').classList.remove('visible');
+    document.getElementById('new-story-btn').style.display = 'none';
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Creando el cuento...';
+
+    setStatus('✍️ Escribiendo tu cuento mágico...');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ protagonist, theme: selectedTheme }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        showError(err.detail || 'Error al conectar con el servidor');
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          let event;
+          try { event = JSON.parse(line.slice(6)); } catch { continue; }
+
+          if (event.type === 'status') {
+            setStatus(event.message);
+          } else if (event.type === 'story_start') {
+            document.getElementById('story-title').innerHTML =
+              '<span>' + event.title + '</span>';
+            document.getElementById('story-section').classList.add('visible');
+          } else if (event.type === 'page') {
+            addPage(event.page);
+          } else if (event.type === 'done') {
+            document.getElementById('status-banner').classList.remove('visible');
+            document.getElementById('new-story-btn').style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '✨ ¡Crear el cuento!';
+            document.getElementById('new-story-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } else if (event.type === 'error') {
+            showError(event.message);
+          }
+        }
+      }
+    } catch (err) {
+      showError('No se pudo conectar con el servidor. Comprueba que la aplicación está en marcha.');
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('story-section').classList.remove('visible');
+    document.getElementById('pages-container').innerHTML = '';
+    document.getElementById('new-story-btn').style.display = 'none';
+    document.getElementById('status-banner').classList.remove('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('protagonist-input').focus();
+  }
+
+  // Enter key on name input
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('protagonist-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') startGeneration();
+    });
+  });
+</script>
+</body>
+</html>
