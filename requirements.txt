@@ -1,5 +1,5 @@
 fastapi
 uvicorn[standard]
-anthropic
+google-generativeai
 fal-client
 python-dotenv

@@ -11,14 +11,9 @@
     :root {
       --purple: #7C3AED;
       --purple-light: #EDE9FE;
-      --yellow: #F59E0B;
-      --yellow-light: #FEF3C7;
       --pink: #EC4899;
-      --pink-light: #FCE7F3;
       --green: #10B981;
       --green-light: #D1FAE5;
-      --blue: #3B82F6;
-      --blue-light: #DBEAFE;
       --bg: #FDF8FF;
       --card: #FFFFFF;
       --text: #1F2937;
@@ -27,368 +22,225 @@
       --shadow: 0 4px 24px rgba(124,58,237,0.10);
     }
 
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* ── HEADER ── */
+    /* HEADER */
     header {
       background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
-      padding: 1.2rem 1.5rem;
-      text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      padding: 1rem 1.5rem;
+      position: sticky; top: 0; z-index: 100;
       box-shadow: 0 2px 16px rgba(124,58,237,0.3);
+      display: flex; align-items: center; justify-content: space-between;
     }
-    header h1 {
-      font-family: 'Fredoka One', cursive;
-      font-size: clamp(1.6rem, 5vw, 2.4rem);
-      color: white;
-      letter-spacing: 1px;
+    .header-left h1 { font-family: 'Fredoka One', cursive; font-size: clamp(1.4rem, 4vw, 2rem); color: white; letter-spacing: 1px; }
+    .header-left p { color: rgba(255,255,255,0.85); font-size: 0.85rem; font-weight: 600; }
+    .library-btn {
+      background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5);
+      color: white; font-family: 'Nunito', sans-serif; font-weight: 800;
+      font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 12px;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
     }
-    header p {
-      color: rgba(255,255,255,0.85);
-      font-size: 0.95rem;
-      margin-top: 0.2rem;
-      font-weight: 600;
-    }
+    .library-btn:hover { background: rgba(255,255,255,0.35); }
 
-    /* ── MAIN LAYOUT ── */
-    main {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 2rem 1.2rem 4rem;
-    }
+    /* MAIN */
+    main { max-width: 780px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
 
-    /* ── FORM CARD ── */
-    .form-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 2rem 1.8rem;
-      margin-bottom: 1.5rem;
-    }
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
 
-    .field-label {
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: var(--purple);
-      margin-bottom: 0.6rem;
-      display: block;
-    }
-
+    /* FORM CARD */
+    .form-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem 1.8rem; margin-bottom: 1.5rem; }
+    .field-label { font-weight: 800; font-size: 1.1rem; color: var(--purple); margin-bottom: 0.6rem; display: block; }
+    .field-hint { font-weight: 600; color: #9CA3AF; font-size: 0.88rem; }
     .name-input {
-      width: 100%;
-      padding: 0.9rem 1.2rem;
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      border: 3px solid #E5D9FE;
-      border-radius: 14px;
-      outline: none;
-      color: var(--text);
-      background: #FAFAFE;
-      transition: border-color 0.2s;
+      width: 100%; padding: 0.9rem 1.2rem;
+      font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 700;
+      border: 3px solid #E5D9FE; border-radius: 14px; outline: none;
+      color: var(--text); background: #FAFAFE; transition: border-color 0.2s;
     }
     .name-input:focus { border-color: var(--purple); background: white; }
     .name-input::placeholder { color: #C4B5FD; font-weight: 600; }
+    .section-divider { border: none; border-top: 2px dashed #E5D9FE; margin: 1.6rem 0; }
 
-    .section-divider {
-      border: none;
-      border-top: 2px dashed #E5D9FE;
-      margin: 1.6rem 0;
-    }
-
-    /* ── THEME GRID ── */
-    .theme-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 0.7rem;
-    }
-
+    /* THEME GRID */
+    .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.7rem; }
     .theme-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.8rem 0.5rem;
-      border: 3px solid #E5D9FE;
-      border-radius: 14px;
-      background: #FAFAFE;
-      cursor: pointer;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-soft);
-      transition: all 0.18s;
-      user-select: none;
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      padding: 0.8rem 0.5rem; border: 3px solid #E5D9FE; border-radius: 14px;
+      background: #FAFAFE; cursor: pointer; font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem; font-weight: 700; color: var(--text-soft);
+      transition: all 0.18s; user-select: none;
     }
-    .theme-btn:hover {
-      border-color: var(--purple);
-      background: var(--purple-light);
-      color: var(--purple);
-      transform: translateY(-2px);
-    }
-    .theme-btn.selected {
-      border-color: var(--purple);
-      background: var(--purple-light);
-      color: var(--purple);
-      transform: translateY(-2px);
+    .theme-btn:hover, .theme-btn.selected {
+      border-color: var(--purple); background: var(--purple-light);
+      color: var(--purple); transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(124,58,237,0.2);
     }
     .theme-emoji { font-size: 1.8rem; line-height: 1; }
 
-    /* ── GENERATE BUTTON ── */
+    /* GENERATE BUTTON */
     .generate-btn {
-      display: block;
-      width: 100%;
-      margin-top: 1.8rem;
-      padding: 1rem 1.5rem;
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.3rem;
-      letter-spacing: 0.5px;
-      color: white;
-      background: linear-gradient(135deg, #7C3AED, #EC4899);
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 4px 16px rgba(124,58,237,0.35);
+      display: block; width: 100%; margin-top: 1.8rem; padding: 1rem 1.5rem;
+      font-family: 'Fredoka One', cursive; font-size: 1.3rem; letter-spacing: 0.5px;
+      color: white; background: linear-gradient(135deg, #7C3AED, #EC4899);
+      border: none; border-radius: 16px; cursor: pointer;
+      transition: all 0.2s; box-shadow: 0 4px 16px rgba(124,58,237,0.35);
     }
-    .generate-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(124,58,237,0.45);
-    }
-    .generate-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .generate-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(124,58,237,0.45); }
+    .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* ── STATUS BANNER ── */
-    .status-banner {
-      background: linear-gradient(135deg, #7C3AED22, #EC489922);
-      border: 2px solid #E5D9FE;
-      border-radius: 16px;
-      padding: 1.2rem 1.5rem;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      display: none;
-    }
+    /* STATUS */
+    .status-banner { background: linear-gradient(135deg, #7C3AED22, #EC489922); border: 2px solid #E5D9FE; border-radius: 16px; padding: 1.2rem 1.5rem; text-align: center; margin-bottom: 1.5rem; display: none; }
     .status-banner.visible { display: block; }
-    .status-text {
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--purple);
-    }
-    .progress-dots {
-      display: inline-flex;
-      gap: 6px;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-    .progress-dots span {
-      width: 8px; height: 8px;
-      background: var(--purple);
-      border-radius: 50%;
-      animation: bounce 1.2s infinite;
-      display: inline-block;
-    }
+    .status-text { font-weight: 700; font-size: 1rem; color: var(--purple); }
+    .progress-dots { display: inline-flex; gap: 6px; margin-left: 8px; vertical-align: middle; }
+    .progress-dots span { width: 8px; height: 8px; background: var(--purple); border-radius: 50%; animation: bounce 1.2s infinite; display: inline-block; }
     .progress-dots span:nth-child(2) { animation-delay: 0.2s; }
     .progress-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-      40% { transform: translateY(-8px); opacity: 1; }
-    }
+    @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-8px); opacity: 1; } }
 
-    /* ── STORY SECTION ── */
-    #story-section { display: none; }
-    #story-section.visible { display: block; }
+    /* STORY */
+    .story-title { font-family: 'Fredoka One', cursive; font-size: clamp(1.5rem, 5vw, 2.2rem); text-align: center; margin-bottom: 1.8rem; line-height: 1.2; }
+    .story-title span { display: inline-block; background: linear-gradient(135deg, #7C3AED, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stars { text-align: center; font-size: 1.4rem; letter-spacing: 0.5rem; margin: 1rem 0; opacity: 0.6; }
 
-    .story-title {
-      font-family: 'Fredoka One', cursive;
-      font-size: clamp(1.5rem, 5vw, 2.2rem);
-      color: var(--purple);
-      text-align: center;
-      margin-bottom: 1.8rem;
-      line-height: 1.2;
-    }
-    .story-title span {
-      display: inline-block;
-      background: linear-gradient(135deg, #7C3AED, #EC4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    /* PAGE CARDS */
+    .page-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 2rem; opacity: 0; transform: translateY(30px); animation: pageReveal 0.6s ease forwards; }
+    @keyframes pageReveal { to { opacity: 1; transform: translateY(0); } }
+    .page-number { background: linear-gradient(135deg, #7C3AED, #EC4899); color: white; font-family: 'Fredoka One', cursive; font-size: 0.9rem; padding: 0.4rem 1rem; display: inline-block; }
+    .page-image-wrapper { width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%); position: relative; overflow: hidden; }
+    .page-image-wrapper.loading::after { content: '🎨'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
+    .page-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .page-text { padding: 1.5rem 1.8rem; font-size: clamp(1rem, 2.5vw, 1.15rem); line-height: 1.8; color: var(--text); font-weight: 600; }
 
-    /* ── STORY PAGES ── */
-    .page-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      margin-bottom: 2rem;
-      opacity: 0;
-      transform: translateY(30px);
-      animation: pageReveal 0.6s ease forwards;
+    /* ACTION BUTTONS */
+    .story-actions { display: flex; gap: 1rem; margin-top: 1rem; }
+    .save-btn {
+      flex: 1; padding: 1rem; font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+      color: white; background: linear-gradient(135deg, #10B981, #059669);
+      border: none; border-radius: 16px; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
     }
-    @keyframes pageReveal {
-      to { opacity: 1; transform: translateY(0); }
+    .save-btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .save-btn.saved { background: linear-gradient(135deg, #6B7280, #4B5563); }
+    .new-story-btn {
+      flex: 1; padding: 1rem; font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+      color: var(--purple); background: var(--purple-light); border: 3px solid var(--purple);
+      border-radius: 16px; cursor: pointer; transition: all 0.2s;
     }
+    .new-story-btn:hover { background: var(--purple); color: white; transform: translateY(-2px); }
 
-    .page-number {
-      background: linear-gradient(135deg, #7C3AED, #EC4899);
-      color: white;
-      font-family: 'Fredoka One', cursive;
-      font-size: 0.9rem;
-      padding: 0.4rem 1rem;
-      display: inline-block;
-    }
-
-    .page-image-wrapper {
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%);
-      position: relative;
-      overflow: hidden;
-    }
-    .page-image-wrapper.loading::after {
-      content: '🎨';
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      animation: pulse 1s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.7; }
-      50% { transform: scale(1.15); opacity: 1; }
-    }
-    .page-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .page-text {
-      padding: 1.5rem 1.8rem;
-      font-size: clamp(1rem, 2.5vw, 1.15rem);
-      line-height: 1.8;
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    /* ── ERROR ── */
-    .error-card {
-      background: #FEF2F2;
-      border: 2px solid #FECACA;
-      border-radius: 16px;
-      padding: 1.2rem 1.5rem;
-      color: #DC2626;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      display: none;
-    }
+    /* ERROR */
+    .error-card { background: #FEF2F2; border: 2px solid #FECACA; border-radius: 16px; padding: 1.2rem 1.5rem; color: #DC2626; font-weight: 700; text-align: center; margin-bottom: 1.5rem; display: none; }
     .error-card.visible { display: block; }
 
-    /* ── NEW STORY BUTTON ── */
-    .new-story-btn {
-      display: block;
-      width: 100%;
-      padding: 1rem;
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.2rem;
-      color: var(--purple);
-      background: var(--purple-light);
-      border: 3px solid var(--purple);
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 1rem;
-    }
-    .new-story-btn:hover {
-      background: var(--purple);
-      color: white;
-      transform: translateY(-2px);
-    }
+    /* LIBRARY */
+    .library-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .library-header h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: var(--purple); }
+    .back-btn { background: var(--purple-light); border: 2px solid var(--purple); color: var(--purple); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.95rem; padding: 0.5rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .back-btn:hover { background: var(--purple); color: white; }
 
-    /* ── STARS DECORATION ── */
-    .stars {
-      text-align: center;
-      font-size: 1.4rem;
-      letter-spacing: 0.5rem;
-      margin: 1rem 0;
-      opacity: 0.6;
+    .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .library-card {
+      background: var(--card); border-radius: 16px; box-shadow: var(--shadow);
+      padding: 1.2rem; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+      position: relative;
     }
+    .library-card:hover { border-color: var(--purple); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(124,58,237,0.15); }
+    .library-card-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .library-card-title { font-family: 'Fredoka One', cursive; font-size: 1rem; color: var(--purple); margin-bottom: 0.3rem; line-height: 1.3; }
+    .library-card-meta { font-size: 0.82rem; color: var(--text-soft); font-weight: 600; }
+    .library-card-delete {
+      position: absolute; top: 0.6rem; right: 0.6rem;
+      background: #FEE2E2; border: none; color: #DC2626;
+      width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+      font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .library-card:hover .library-card-delete { opacity: 1; }
+    .library-empty { text-align: center; padding: 3rem 1rem; color: var(--text-soft); }
+    .library-empty p { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; }
 
     @media (max-width: 480px) {
       main { padding: 1.2rem 0.8rem 3rem; }
       .form-card { padding: 1.5rem 1.2rem; }
       .theme-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
       .page-text { padding: 1.2rem; }
+      .story-actions { flex-direction: column; }
+      header { flex-wrap: wrap; gap: 0.5rem; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>✨ CuentoMágico</h1>
-  <p>Cuentos únicos para pequeños grandes soñadores</p>
+  <div class="header-left">
+    <h1>✨ CuentoMágico</h1>
+    <p>Cuentos únicos para pequeños soñadores</p>
+  </div>
+  <button class="library-btn" onclick="showLibrary()">📚 Mi biblioteca</button>
 </header>
 
 <main>
-  <!-- FORM -->
-  <div class="form-card" id="form-card">
-    <label class="field-label" for="protagonist-input">
-      👤 ¿Cómo se llama el protagonista?
-    </label>
-    <input
-      id="protagonist-input"
-      class="name-input"
-      type="text"
-      placeholder="Escribe el nombre aquí..."
-      maxlength="40"
-      autocomplete="off"
-    >
 
-    <hr class="section-divider">
+  <!-- ── VIEW: CREAR ── -->
+  <div class="view active" id="view-create">
+    <div class="form-card">
+      <label class="field-label" for="protagonist-input">👤 ¿Cómo se llama el protagonista?</label>
+      <input id="protagonist-input" class="name-input" type="text" placeholder="Escribe el nombre aquí..." maxlength="40" autocomplete="off">
 
-    <label class="field-label">🗺️ Elige la temática del cuento</label>
-    <div class="theme-grid" id="theme-grid"></div>
+      <label class="field-label" for="description-input" style="margin-top:1.2rem; display:block;">
+        🎨 Describe al personaje <span class="field-hint">(opcional)</span>
+      </label>
+      <textarea id="description-input" class="name-input" placeholder="Ej: niña de 3 años, castaña, ojos marrones, pelo rizado..." maxlength="300" rows="2" style="resize:none; line-height:1.5;"></textarea>
 
-    <button class="generate-btn" id="generate-btn" onclick="startGeneration()">
-      ✨ ¡Crear el cuento!
-    </button>
-  </div>
+      <hr class="section-divider">
 
-  <!-- STATUS -->
-  <div class="status-banner" id="status-banner">
-    <div class="status-text" id="status-text">
-      Preparando la magia
-      <span class="progress-dots"><span></span><span></span><span></span></span>
+      <label class="field-label">🗺️ Elige la temática del cuento</label>
+      <div class="theme-grid" id="theme-grid"></div>
+
+      <button class="generate-btn" id="generate-btn" onclick="startGeneration()">✨ ¡Crear el cuento!</button>
     </div>
+
+    <div class="status-banner" id="status-banner">
+      <div class="status-text" id="status-text">Preparando la magia<span class="progress-dots"><span></span><span></span><span></span></span></div>
+    </div>
+    <div class="error-card" id="error-card"></div>
+
+    <section id="story-section" style="display:none;">
+      <div class="stars">⭐ 🌟 ✨ 🌟 ⭐</div>
+      <h2 class="story-title" id="story-title"></h2>
+      <div id="pages-container"></div>
+      <div class="story-actions" id="story-actions" style="display:none;">
+        <button class="save-btn" id="save-btn" onclick="saveStory()">💾 Guardar cuento</button>
+        <button class="new-story-btn" onclick="resetForm()">📖 Crear otro cuento</button>
+      </div>
+    </section>
   </div>
 
-  <!-- ERROR -->
-  <div class="error-card" id="error-card"></div>
+  <!-- ── VIEW: BIBLIOTECA ── -->
+  <div class="view" id="view-library">
+    <div class="library-header">
+      <h2>📚 Mi biblioteca</h2>
+      <button class="back-btn" onclick="showCreate()">← Crear cuento</button>
+    </div>
+    <div class="library-grid" id="library-grid"></div>
+  </div>
 
-  <!-- STORY -->
-  <section id="story-section">
+  <!-- ── VIEW: LEER CUENTO ── -->
+  <div class="view" id="view-read">
+    <div class="library-header">
+      <h2 id="read-back-label">📚 Mi biblioteca</h2>
+      <button class="back-btn" onclick="showLibrary()">← Volver</button>
+    </div>
     <div class="stars">⭐ 🌟 ✨ 🌟 ⭐</div>
-    <h2 class="story-title" id="story-title"></h2>
-    <div id="pages-container"></div>
-    <button class="new-story-btn" id="new-story-btn" style="display:none" onclick="resetForm()">
-      📖 Crear otro cuento
-    </button>
-  </section>
+    <h2 class="story-title" id="read-title"></h2>
+    <div id="read-pages"></div>
+  </div>
+
 </main>
 
 <script>
@@ -406,7 +258,9 @@
     hadas:       { label: 'Hadas',           emoji: '🧚' },
     aventura:    { label: 'Gran Aventura',   emoji: '🗺️' },
   };
+
   let selectedTheme = null;
+  let currentStory = null; // { title, protagonist, theme, pages }
 
   // Build theme grid
   (function buildGrid() {
@@ -423,16 +277,21 @@
 
   function selectTheme(key) {
     selectedTheme = key;
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.theme === key);
-    });
+    document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.toggle('selected', btn.dataset.theme === key));
   }
 
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showCreate() { showView('view-create'); }
+  function showLibrary() { loadLibrary(); showView('view-library'); }
+
   function setStatus(msg) {
-    const banner = document.getElementById('status-banner');
-    document.getElementById('status-text').innerHTML =
-      msg + '<span class="progress-dots"><span></span><span></span><span></span></span>';
-    banner.classList.add('visible');
+    document.getElementById('status-text').innerHTML = msg + '<span class="progress-dots"><span></span><span></span><span></span></span>';
+    document.getElementById('status-banner').classList.add('visible');
   }
 
   function showError(msg) {
@@ -440,15 +299,15 @@
     el.textContent = '❌ ' + msg;
     el.classList.add('visible');
     document.getElementById('status-banner').classList.remove('visible');
-    document.getElementById('generate-btn').disabled = false;
-    document.getElementById('generate-btn').textContent = '✨ ¡Crear el cuento!';
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = false;
+    btn.textContent = '✨ ¡Crear el cuento!';
   }
 
   function addPage(page) {
     const container = document.getElementById('pages-container');
     const card = document.createElement('div');
     card.className = 'page-card';
-    card.style.animationDelay = '0.1s';
 
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'page-image-wrapper loading';
@@ -458,28 +317,23 @@
     img.alt = `Ilustración página ${page.page_number}`;
     img.onload = () => imgWrapper.classList.remove('loading');
     img.src = page.image_url;
-
     imgWrapper.appendChild(img);
 
     card.innerHTML = `<div class="page-number">Página ${page.page_number}</div>`;
     card.appendChild(imgWrapper);
-
     const text = document.createElement('p');
     text.className = 'page-text';
     text.textContent = page.text;
     card.appendChild(text);
-
     container.appendChild(card);
-
-    // Scroll to new page
     setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
   async function startGeneration() {
     const protagonist = document.getElementById('protagonist-input').value.trim();
+    const characterDescription = document.getElementById('description-input').value.trim();
 
     if (!protagonist) {
-      document.getElementById('protagonist-input').focus();
       document.getElementById('protagonist-input').style.borderColor = '#EC4899';
       setTimeout(() => document.getElementById('protagonist-input').style.borderColor = '', 1500);
       return;
@@ -492,12 +346,12 @@
       return;
     }
 
-    // Reset state
     document.getElementById('error-card').classList.remove('visible');
     document.getElementById('pages-container').innerHTML = '';
-    document.getElementById('story-title').textContent = '';
-    document.getElementById('story-section').classList.remove('visible');
-    document.getElementById('new-story-btn').style.display = 'none';
+    document.getElementById('story-title').innerHTML = '';
+    document.getElementById('story-section').style.display = 'none';
+    document.getElementById('story-actions').style.display = 'none';
+    currentStory = null;
 
     const btn = document.getElementById('generate-btn');
     btn.disabled = true;
@@ -509,7 +363,7 @@
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ protagonist, theme: selectedTheme }),
+        body: JSON.stringify({ protagonist, theme: selectedTheme, character_description: characterDescription }),
       });
 
       if (!response.ok) {
@@ -521,14 +375,15 @@
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      const pages = [];
+      let storyTitle = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        buffer = lines.pop(); // keep incomplete line
+        buffer = lines.pop();
 
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
@@ -538,37 +393,131 @@
           if (event.type === 'status') {
             setStatus(event.message);
           } else if (event.type === 'story_start') {
-            document.getElementById('story-title').innerHTML =
-              '<span>' + event.title + '</span>';
-            document.getElementById('story-section').classList.add('visible');
+            storyTitle = event.title;
+            document.getElementById('story-title').innerHTML = '<span>' + event.title + '</span>';
+            document.getElementById('story-section').style.display = 'block';
           } else if (event.type === 'page') {
+            pages.push(event.page);
             addPage(event.page);
           } else if (event.type === 'done') {
+            currentStory = { title: storyTitle, protagonist, theme: selectedTheme, pages };
             document.getElementById('status-banner').classList.remove('visible');
-            document.getElementById('new-story-btn').style.display = 'block';
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('saved');
+            saveBtn.textContent = '💾 Guardar cuento';
+            document.getElementById('story-actions').style.display = 'flex';
             btn.disabled = false;
             btn.textContent = '✨ ¡Crear el cuento!';
-            document.getElementById('new-story-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            document.getElementById('story-actions').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           } else if (event.type === 'error') {
             showError(event.message);
           }
         }
       }
     } catch (err) {
-      showError('No se pudo conectar con el servidor. Comprueba que la aplicación está en marcha.');
+      showError('No se pudo conectar con el servidor.');
+    }
+  }
+
+  async function saveStory() {
+    if (!currentStory) return;
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.textContent = '💾 Guardando...';
+    try {
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentStory),
+      });
+      if (res.ok) {
+        btn.textContent = '✅ ¡Guardado!';
+        btn.classList.add('saved');
+      } else {
+        btn.disabled = false;
+        btn.textContent = '💾 Guardar cuento';
+      }
+    } catch {
+      btn.disabled = false;
+      btn.textContent = '💾 Guardar cuento';
     }
   }
 
   function resetForm() {
-    document.getElementById('story-section').classList.remove('visible');
+    document.getElementById('story-section').style.display = 'none';
     document.getElementById('pages-container').innerHTML = '';
-    document.getElementById('new-story-btn').style.display = 'none';
+    document.getElementById('story-actions').style.display = 'none';
     document.getElementById('status-banner').classList.remove('visible');
+    currentStory = null;
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.getElementById('protagonist-input').focus();
   }
 
-  // Enter key on name input
+  // LIBRARY
+  async function loadLibrary() {
+    const grid = document.getElementById('library-grid');
+    grid.innerHTML = '<p style="color:#9CA3AF;font-weight:700;padding:1rem;">Cargando...</p>';
+    try {
+      const res = await fetch('/api/saved');
+      const stories = await res.json();
+      if (stories.length === 0) {
+        grid.innerHTML = '<div class="library-empty"><div style="font-size:3rem;">📭</div><p>Aún no hay cuentos guardados.<br>¡Crea el primero!</p></div>';
+        return;
+      }
+      grid.innerHTML = '';
+      for (const s of stories) {
+        const emoji = THEMES[s.theme]?.emoji || '📖';
+        const date = new Date(s.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
+        const card = document.createElement('div');
+        card.className = 'library-card';
+        card.innerHTML = `
+          <button class="library-card-delete" onclick="deleteStory(event, ${s.id})">✕</button>
+          <div class="library-card-emoji">${emoji}</div>
+          <div class="library-card-title">${s.title}</div>
+          <div class="library-card-meta">👤 ${s.protagonist} · ${date}</div>
+        `;
+        card.onclick = () => readStory(s.id);
+        grid.appendChild(card);
+      }
+    } catch {
+      grid.innerHTML = '<p style="color:#DC2626;font-weight:700;padding:1rem;">Error al cargar la biblioteca.</p>';
+    }
+  }
+
+  async function readStory(id) {
+    showView('view-read');
+    document.getElementById('read-title').innerHTML = '<span style="color:#9CA3AF">Cargando...</span>';
+    document.getElementById('read-pages').innerHTML = '';
+    try {
+      const res = await fetch(`/api/saved/${id}`);
+      const story = await res.json();
+      document.getElementById('read-title').innerHTML = '<span>' + story.title + '</span>';
+      for (const page of story.pages) {
+        const card = document.createElement('div');
+        card.className = 'page-card';
+        card.style.animationDelay = '0s';
+        card.innerHTML = `
+          <div class="page-number">Página ${page.page_number}</div>
+          <div class="page-image-wrapper">
+            <img class="page-image" src="${page.image_url}" alt="Ilustración página ${page.page_number}" loading="lazy">
+          </div>
+          <p class="page-text">${page.text}</p>
+        `;
+        document.getElementById('read-pages').appendChild(card);
+      }
+    } catch {
+      document.getElementById('read-title').textContent = 'Error al cargar el cuento.';
+    }
+  }
+
+  async function deleteStory(e, id) {
+    e.stopPropagation();
+    if (!confirm('¿Eliminar este cuento de la biblioteca?')) return;
+    await fetch(`/api/saved/${id}`, { method: 'DELETE' });
+    loadLibrary();
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('protagonist-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') startGeneration();

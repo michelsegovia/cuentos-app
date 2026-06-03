@@ -10,12 +10,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
-import anthropic
+import google.generativeai as genai
 from dotenv import load_dotenv
 load_dotenv()
 
 import fal_client
 fal_client.api_key = os.environ.get("FAL_KEY", "")
+
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY", ""))
+gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
 DB_PATH = "stories.db"
 
@@ -105,6 +108,16 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS saved_stories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            protagonist TEXT NOT NULL,
+            theme TEXT NOT NULL,
+            pages_json TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -115,11 +128,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-anthropic_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
 class GenerateRequest(BaseModel):
     protagonist: str
     theme: str
+    character_description: str = ""
 
 def get_previous_summaries(protagonist: str, theme: str) -> list[str]:
     conn = sqlite3.connect(DB_PATH)
@@ -139,8 +151,13 @@ def save_story(protagonist: str, theme: str, plot_summary: str):
     conn.commit()
     conn.close()
 
-def _generate_story_text(protagonist: str, theme: str, previous_summaries: list[str]) -> dict:
+def _generate_story_text(protagonist: str, theme: str, previous_summaries: list[str], character_description: str = "") -> dict:
     theme_data = THEMES[theme]
+
+    if character_description:
+        char_desc_instruction = f"MANDATORY: The parent has described the character as: '{character_description}'. You MUST respect ALL physical traits exactly as described (hair color, eye color, skin tone, etc). Translate to English and add clothing/accessories, but NEVER change the described physical features."
+    else:
+        char_desc_instruction = "Invent appropriate details: approximate age look, hair color and style, eye color, skin tone, clothing colors and style, any accessories."
 
     avoid_section = ""
     if previous_summaries:
@@ -155,22 +172,23 @@ You MUST write a completely different story with a different plot, different cha
 
 Protagonist name: {protagonist}
 Setting: {theme_data['setting']}
+Character description instruction: {char_desc_instruction}
 {avoid_section}
 
 Requirements:
 - Exactly 5 pages
 - Total ~450 words (around 90 words per page)
-- Simple Spanish vocabulary suitable for parents to read aloud to 3-4 year olds
-- Warm, positive tone with clear emotions
-- The protagonist faces a small challenge and overcomes it with kindness, creativity, or courage
-- Include 1-2 animal or friendly secondary characters
-- Happy ending with a simple moral lesson
-- Each page must end in a way that makes you want to turn the page
+- Language STRICTLY for 3-4 year olds: very short sentences (max 10 words each), only everyday words a toddler knows, no subordinate clauses, lots of repetition and sounds (like "¡Splash!", "¡Bum!", "¡Oh!"), describe emotions simply ("estaba muy contento", "tenía mucho miedo")
+- Warm, positive tone
+- The protagonist faces a very simple small challenge and overcomes it with kindness or courage
+- Include 1-2 friendly animal characters that speak simply
+- Happy ending with a simple moral lesson stated in one short sentence
+- Each page ends making you curious about what happens next
 
 Return ONLY valid JSON with this exact structure (no markdown, no explanation):
 {{
   "title": "Story title in Spanish (creative, 4-8 words)",
-  "character_description": "Visual description of {protagonist} in English for illustration: approximate age look, hair color and style, eye color, skin tone, clothing colors and style, any accessories. Be very specific and consistent. Example: 'A cheerful 4-year-old girl with curly auburn hair in two pigtails tied with yellow ribbons, bright hazel eyes, light brown skin, wearing a red polka-dot dress with white collar and small red shoes'",
+  "character_description": "Detailed visual description of the protagonist in English for illustration. CRITICAL: if physical traits were provided above, copy them exactly without changing anything. Add clothing and accessories. Be very specific. Example: A cheerful 4-year-old girl with curly auburn hair in two pigtails, bright hazel eyes, light brown skin, wearing a red polka-dot dress and small red shoes",
   "plot_summary": "2 sentence plot summary in Spanish for internal tracking",
   "pages": [
     {{
@@ -201,13 +219,9 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
   ]
 }}"""
 
-    response = anthropic_client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=3500,
-        messages=[{"role": "user", "content": prompt}]
-    )
+    response = gemini_model.generate_content(prompt)
 
-    content = response.content[0].text.strip()
+    content = response.text.strip()
     if "```json" in content:
         content = content.split("```json")[1].split("```")[0].strip()
     elif "```" in content:
@@ -219,15 +233,16 @@ def _generate_image(scene_description: str, character_description: str, theme: s
     style = THEMES[theme]["style"]
 
     prompt = (
-        f"Children's picture book illustration, {scene_description}. "
-        f"The main character is {character_description}. "
+        f"Children's picture book illustration. "
+        f"Main character: {character_description}. "
+        f"Scene: {scene_description}. "
         f"Art style: {style}. "
         "Cute, friendly, warm atmosphere. Suitable for ages 3-4. "
         "High quality storybook illustration. No text or letters in the image."
     )
 
     result = fal_client.subscribe(
-        "fal-ai/flux/dev",
+        "fal-ai/flux-pro/v1.1",
         arguments={
             "prompt": prompt,
             "seed": seed,
@@ -235,7 +250,7 @@ def _generate_image(scene_description: str, character_description: str, theme: s
             "num_inference_steps": 28,
             "guidance_scale": 3.5,
             "num_images": 1,
-            "enable_safety_checker": True,
+            "safety_tolerance": "2",
         }
     )
 
@@ -261,7 +276,7 @@ async def generate_story(request: GenerateRequest):
 
             previous_summaries = get_previous_summaries(protagonist, theme)
             story = await loop.run_in_executor(
-                None, partial(_generate_story_text, protagonist, theme, previous_summaries)
+                None, partial(_generate_story_text, protagonist, theme, previous_summaries, request.character_description)
             )
 
             seed = random.randint(10000, 999999)
@@ -310,6 +325,52 @@ async def generate_story(request: GenerateRequest):
 @app.get("/api/themes")
 async def get_themes():
     return {k: {"label": v["label"], "emoji": v["emoji"]} for k, v in THEMES.items()}
+
+class SaveRequest(BaseModel):
+    title: str
+    protagonist: str
+    theme: str
+    pages: list
+
+@app.post("/api/save")
+async def save_story_endpoint(request: SaveRequest):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute(
+        "INSERT INTO saved_stories (title, protagonist, theme, pages_json) VALUES (?, ?, ?, ?)",
+        (request.title, request.protagonist, request.theme, json.dumps(request.pages, ensure_ascii=False))
+    )
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.get("/api/saved")
+async def list_saved():
+    conn = sqlite3.connect(DB_PATH)
+    rows = conn.execute(
+        "SELECT id, title, protagonist, theme, created_at FROM saved_stories ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+    return [{"id": r[0], "title": r[1], "protagonist": r[2], "theme": r[3], "created_at": r[4]} for r in rows]
+
+@app.get("/api/saved/{story_id}")
+async def get_saved_story(story_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    row = conn.execute(
+        "SELECT id, title, protagonist, theme, pages_json, created_at FROM saved_stories WHERE id = ?",
+        (story_id,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Cuento no encontrado")
+    return {"id": row[0], "title": row[1], "protagonist": row[2], "theme": row[3], "pages": json.loads(row[4]), "created_at": row[5]}
+
+@app.delete("/api/saved/{story_id}")
+async def delete_saved_story(story_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("DELETE FROM saved_stories WHERE id = ?", (story_id,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
 
 @app.get("/")
 async def serve_index():
