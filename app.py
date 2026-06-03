@@ -1,10 +1,11 @@
 import os
 import json
-import sqlite3
 import random
 import asyncio
 from functools import partial
 from contextlib import asynccontextmanager
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +21,7 @@ fal_client.api_key = os.environ.get("FAL_KEY", "")
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY", ""))
 gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
-DB_PATH = "stories.db"
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 THEMES = {
     "princesas": {
@@ -97,20 +98,24 @@ THEMES = {
     },
 }
 
+def get_conn():
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS stories (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             protagonist TEXT NOT NULL,
             theme TEXT NOT NULL,
             plot_summary TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    conn.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS saved_stories (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             protagonist TEXT NOT NULL,
             theme TEXT NOT NULL,
@@ -119,6 +124,7 @@ def init_db():
         )
     """)
     conn.commit()
+    cur.close()
     conn.close()
 
 @asynccontextmanager
@@ -134,21 +140,26 @@ class GenerateRequest(BaseModel):
     character_description: str = ""
 
 def get_previous_summaries(protagonist: str, theme: str) -> list[str]:
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        "SELECT plot_summary FROM stories WHERE protagonist = ? AND theme = ? ORDER BY created_at DESC LIMIT 10",
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT plot_summary FROM stories WHERE protagonist = %s AND theme = %s ORDER BY created_at DESC LIMIT 10",
         (protagonist.lower().strip(), theme)
-    ).fetchall()
+    )
+    rows = cur.fetchall()
+    cur.close()
     conn.close()
-    return [row[0] for row in rows]
+    return [row["plot_summary"] for row in rows]
 
 def save_story(protagonist: str, theme: str, plot_summary: str):
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute(
-        "INSERT INTO stories (protagonist, theme, plot_summary) VALUES (?, ?, ?)",
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO stories (protagonist, theme, plot_summary) VALUES (%s, %s, %s)",
         (protagonist.lower().strip(), theme, plot_summary)
     )
     conn.commit()
+    cur.close()
     conn.close()
 
 def _generate_story_text(protagonist: str, theme: str, previous_summaries: list[str], character_description: str = "") -> dict:
@@ -178,7 +189,7 @@ Character description instruction: {char_desc_instruction}
 Requirements:
 - Exactly 5 pages
 - Total ~450 words (around 90 words per page)
-- Language STRICTLY for 3-4 year olds: very short sentences (max 10 words each), only everyday words a toddler knows, no subordinate clauses, lots of repetition and sounds (like "¡Splash!", "¡Bum!", "¡Oh!"), describe emotions simply ("estaba muy contento", "tenía mucho miedo")
+- Language STRICTLY for 3-4 year olds: very short sentences (max 10 words each), only everyday words a toddler knows, no subordinate clauses, describe emotions simply ("estaba muy contento", "tenía mucho miedo"). Use onomatopoeia sparingly: maximum 1 per page, and only when it genuinely adds to the story — do NOT force them.
 - Warm, positive tone
 - The protagonist faces a very simple small challenge and overcomes it with kindness or courage
 - Include 1-2 friendly animal characters that speak simply
@@ -334,41 +345,46 @@ class SaveRequest(BaseModel):
 
 @app.post("/api/save")
 async def save_story_endpoint(request: SaveRequest):
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute(
-        "INSERT INTO saved_stories (title, protagonist, theme, pages_json) VALUES (?, ?, ?, ?)",
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO saved_stories (title, protagonist, theme, pages_json) VALUES (%s, %s, %s, %s)",
         (request.title, request.protagonist, request.theme, json.dumps(request.pages, ensure_ascii=False))
     )
     conn.commit()
+    cur.close()
     conn.close()
     return {"ok": True}
 
 @app.get("/api/saved")
 async def list_saved():
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        "SELECT id, title, protagonist, theme, created_at FROM saved_stories ORDER BY created_at DESC"
-    ).fetchall()
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id, title, protagonist, theme, created_at FROM saved_stories ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    cur.close()
     conn.close()
-    return [{"id": r[0], "title": r[1], "protagonist": r[2], "theme": r[3], "created_at": r[4]} for r in rows]
+    return [{"id": r["id"], "title": r["title"], "protagonist": r["protagonist"], "theme": r["theme"], "created_at": str(r["created_at"])} for r in rows]
 
 @app.get("/api/saved/{story_id}")
 async def get_saved_story(story_id: int):
-    conn = sqlite3.connect(DB_PATH)
-    row = conn.execute(
-        "SELECT id, title, protagonist, theme, pages_json, created_at FROM saved_stories WHERE id = ?",
-        (story_id,)
-    ).fetchone()
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id, title, protagonist, theme, pages_json, created_at FROM saved_stories WHERE id = %s", (story_id,))
+    row = cur.fetchone()
+    cur.close()
     conn.close()
     if not row:
         raise HTTPException(status_code=404, detail="Cuento no encontrado")
-    return {"id": row[0], "title": row[1], "protagonist": row[2], "theme": row[3], "pages": json.loads(row[4]), "created_at": row[5]}
+    return {"id": row["id"], "title": row["title"], "protagonist": row["protagonist"], "theme": row["theme"], "pages": json.loads(row["pages_json"]), "created_at": str(row["created_at"])}
 
 @app.delete("/api/saved/{story_id}")
 async def delete_saved_story(story_id: int):
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("DELETE FROM saved_stories WHERE id = ?", (story_id,))
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM saved_stories WHERE id = %s", (story_id,))
     conn.commit()
+    cur.close()
     conn.close()
     return {"ok": True}
 

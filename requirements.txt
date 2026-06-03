@@ -3,3 +3,4 @@ uvicorn[standard]
 google-generativeai
 fal-client
 python-dotenv
+psycopg2-binary
