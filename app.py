@@ -99,7 +99,7 @@ THEMES = {
 }
 
 def get_conn():
-    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor, sslmode="require")
 
 def init_db():
     conn = get_conn()
@@ -129,7 +129,7 @@ def init_db():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    # Tables already created directly in Supabase
     yield
 
 app = FastAPI(lifespan=lifespan)
